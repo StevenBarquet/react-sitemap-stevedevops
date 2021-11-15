@@ -13,7 +13,7 @@ import Error404Page from 'Pages/Error404Page';
 import NavbarCont from 'Cont/NavbarCont';
 import Footer from 'Comp/Footer';
 
-function AppContainer() : ReactElement {
+<!-- function AppContainer() : ReactElement {
   return (
     <BrowserRouter>
       <NavbarCont />
@@ -27,7 +27,7 @@ function AppContainer() : ReactElement {
       <Footer />
     </BrowserRouter>
   );
-}
+} -->
 
 export default AppContainer;
 

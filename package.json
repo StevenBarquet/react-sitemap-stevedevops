@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lanierc/react-build-sitemap.git"
+    "url": "git+https://github.com/StevenBarquet/react-sitemap-stevedevops"
   },
   "keywords": [
     "react",
@@ -21,9 +21,9 @@
   "author": "Corey Lanier <corey@icloudhospital.com> and stevedevops <sbarquet@forgemytech.com>",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/lanierc/react-build-sitemap/issues"
+    "url": "https://github.com/StevenBarquet/react-sitemap-stevedevops"
   },
-  "homepage": "https://github.com/lanierc/react-build-sitemap#readme",
+  "homepage": "https://github.com/StevenBarquet/react-sitemap-stevedevops",
   "dependencies": {
     "@babel/core": "^7.11.1",
     "@babel/node": "^7.10.5",
