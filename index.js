@@ -12,10 +12,12 @@ const {
   getRoutes
 } = require("./methods/general");
 
-const buildSitemap = (fileName, buildPath, url) => {
+const buildSitemap = (fileName, buildPath, url, aditionalWebsites) => {
+  const newSites = aditionalWebsites && aditionalWebsites.length>0 ? aditionalWebsites.map( website => `\t\n\n<url> <loc>${website}</loc> </url>` ) : []
   const sitemapElements = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"  xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">',
+    ...newSites
   ];
 
   // check for file type (typescript/javascript)
@@ -69,9 +71,7 @@ const buildSitemap = (fileName, buildPath, url) => {
       const pathIndex = item.openingElement.attributes.findIndex(
         (x) => x.name.name === "path"
       );
-      const newUrl = `<url>
-      <loc>${url}${item.openingElement.attributes[pathIndex].value.value}</loc>
-      </url>`;
+      const newUrl = `\t\n<url><loc>${url}${item.openingElement.attributes[pathIndex].value.value}</loc></url>`;
       sitemapElements.push(newUrl);
     });
   }
@@ -100,6 +100,7 @@ buildSitemap.propTypes = {
   fileName: PropTypes.string,
   buildPath: PropTypes.string,
   url: PropTypes.string,
+  aditionalWebsites: PropTypes.arrayOf(PropTypes.string)
 };
 
 module.exports =  buildSitemap;

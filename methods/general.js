@@ -1,7 +1,6 @@
 // ---Dependencies
 const fs = require("fs");
 const babelParser = require("@babel/parser");
-const PropTypes = require("prop-types");
 
 /** check for file type (typescript/javascript) */
 function getFileType(fileName) {
