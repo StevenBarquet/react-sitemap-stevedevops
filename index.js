@@ -1,219 +1,67 @@
-const babelParser = require("@babel/parser");
-//import babelParser from "@babel/parser";
-import fs from "fs";
-import PropTypes from "prop-types";
+const fs = require("fs");
+const PropTypes = require("prop-types");
+// ---Methods
+const { 
+  getFileType, 
+  getPlugin, 
+  getFileInString,
+  logErrors,
+  getObjParsedJSX,
+  getFunctionOrClassElements,
+  buildArgumentsArray,
+  getRoutes
+} = require("./methods/general");
 
 const buildSitemap = (fileName, buildPath, url) => {
-  // check for file type (typescript/javascript)
-  const typescriptCheck = /\.(tsx|ts)$/;
-  const javascriptCheck = /\.(jsx|js)$/;
-  let fileType;
-  if (typescriptCheck.exec(fileName)) {
-    fileType = "tsx";
-  }
-  if (javascriptCheck.exec(fileName)) {
-    fileType = "jsx";
-  }
-  if (fileType === undefined) {
-    throw new Error(
-      "The passed file is neither Javascript nor Typescript. Skipping."
-    );
-  }
-  const plugins = ["jsx", "classProperties"];
-  if (fileType === "tsx") {
-    plugins.push("typescript");
-  }
-  const jsxFile = fs.readFileSync(fileName, "utf8");
   const sitemapElements = [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"  xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">',
   ];
-  // if component does not exist, throw error and skip.
-  if (fileName === undefined || fileName === null) {
-    throw new Error("Component does not exist to generate sitemap. Skipping.");
+
+  // check for file type (typescript/javascript)
+  const fileType = getFileType(fileName);
+  if(fileType.error){
+    logErrors(fileType)
+    return null;
   }
-  // read through jsx
-  const jsxTree = JSON.stringify(
-    babelParser.parse(jsxFile, {
-      sourceType: "unambiguous",
-      plugins,
-    })
-  );
-  const jsxObj = JSON.parse(jsxTree);
-  jsxObj.program.body.forEach((item) => {
-    if (item.declaration === undefined) {
-      item.declaration = {
-        type: "",
-      };
-    }
-  });
-  const functionObj = [];
-  const classObj = [];
-  jsxObj.program.body.forEach((item) => {
-    if (
-      item.declaration.type === "FunctionDeclaration" ||
-      item.type === "FunctionDeclaration"
-    ) {
-      functionObj.push(item);
-    }
-    if (
-      item.declaration.type === "ClassDeclaration" ||
-      item.type === "ClassDeclaration"
-    ) {
-      classObj.push(item);
-    }
-    if (
-      item.type === "VariableDeclaration" &&
-      item.declarations[0].init.type === "ArrowFunctionExpression"
-    ) {
-      functionObj.push(item.declarations[0].init);
-    }
-  });
-  if (functionObj.length === 0 && classObj.length === 0) {
-    throw new Error(
-      "There is no function declaration in this file: Perhaps it is not a React Component? Skipping."
-    );
+
+  const plugins = getPlugin(fileType.data)
+  if(plugins.error){
+    logErrors(plugins)
+    return null;
   }
-  // find the 'router', 'browserrouter', or 'switch' element.
-  const mapJson = (json) => {
-    json.forEach((item) => {
-      if (item.type === "ConditionalExpression") {
-        if (item.consequent.type === "JSXFragment") {
-          const children = item.consequent.children.filter(
-            (x) => x.type === "JSX Element" || x.type === "JSXFragment"
-          );
-          mapJson(children);
-        } else {
-          //check for router in the item name.
-          if (
-            item.consequent.openingElement.name.name !== undefined &&
-            (item.consequent.openingElement.name.name === "Router" ||
-              item.consequent.openingElement.name.name === "BrowserRouter" ||
-              item.consequent.openingElement.name.name === "Switch")
-          ) {
-            //if it exsits, filter it for only elements that are routes and return it.
-            router = item.consequent.children.filter(
-              (child) =>
-                child.type === "JSXElement" &&
-                child.openingElement.name.name === "Route"
-            );
-          }
-        }
-        //if it doesn't, check for children
-        if (
-          router === undefined &&
-          item.consequent.children &&
-          item.consequent.children.length > 0
-        ) {
-          //if it has children, rerun the function on the children that are actually elements
-          const children = item.consequent.children.filter(
-            (x) => x.type === "JSXElement" || x.type === "JSXFragment"
-          );
-          mapJson(children);
-        }
-      } else {
-        if (item.type === "JSXFragment") {
-          const children = item.children.filter(
-            (x) => x.type === "JSX Element" || x.type === "JSXFragment"
-          );
-          mapJson(children);
-        } else {
-          //check for router in the item name.
-          if (
-            item.openingElement.name.name !== undefined &&
-            (item.openingElement.name.name === "Router" ||
-              item.openingElement.name.name === "BrowserRouter" ||
-              item.openingElement.name.name === "Switch")
-          ) {
-            //if it exsits, filter it for only elements that are routes and return it.
-            router = item.children.filter(
-              (child) =>
-                child.type === "JSXElement" &&
-                child.openingElement.name.name === "Route"
-            );
-          }
-        }
-        //if it doesn't, check for children
-        if (router === undefined && item.children && item.children.length > 0) {
-          //if it has children, rerun the function on the children that are actually elements
-          const children = item.children.filter(
-            (x) => x.type === "JSXElement" || x.type === "JSXFragment"
-          );
-          mapJson(children);
-        }
-      }
-    });
-  };
-  let router;
-  const renderJson = [];
-  if (functionObj.length > 0) {
-    functionObj.forEach((obj) => {
-      if (obj.type === "ArrowFunctionExpression") {
-        if (obj.body.body === undefined) {
-          return;
-        }
-        obj.body.body.forEach((item) => {
-          if (item.type === "ReturnStatement") {
-            renderJson.push(item.argument);
-          }
-        });
-        return;
-      }
-      if (obj.declaration.type === "FunctionDeclaration") {
-        obj.declaration.body.body.forEach((item) => {
-          if (item.type === "ReturnStatement") {
-            renderJson.push(item.argument);
-          }
-        });
-      }
-      if (obj.type === "FunctionDeclaration") {
-        obj.body.body.forEach((item) => {
-          if (item.type === "ReturnStatement") {
-            renderJson.push(item.argument);
-          }
-        });
-      }
-    });
+
+  const jsxFile = getFileInString(fileName)
+  if(jsxFile.error){
+    logErrors(jsxFile)
+    return null;
   }
-  if (classObj.length > 0) {
-    classObj.forEach((obj) => {
-      let renderIndex;
-      if (obj.declaration.type === "ClassDeclaration") {
-        obj.declaration.body.body.forEach((item, index) => {
-          if (item.key.name === "render") {
-            renderIndex = index;
-          }
-        });
-        if (renderIndex !== undefined) {
-          obj.declaration.body.body[renderIndex].body.body.forEach((item) => {
-            if (item.type === "ReturnStatement") {
-              returnObj.push(item.argument);
-            }
-          });
-        }
-      }
-      if (obj.type === "ClassDeclaration") {
-        obj.body.body.forEach((item, index) => {
-          if (item.key.name === "render") {
-            renderIndex = index;
-          }
-        });
-        if (renderIndex !== undefined) {
-          obj.body.body[renderIndex].body.body.forEach((item) => {
-            if (item.type === "ReturnStatement") {
-              returnObj.push(item.argument);
-            }
-          });
-        }
-      }
-    });
+
+  const jsxObj = getObjParsedJSX(jsxFile.data, plugins.data);
+  if(jsxObj.error){
+    logErrors(jsxObj)
+    return null;
   }
-  if (renderJson.length === 0) {
-    throw new Error(
-      "There is no return statement in this file: Have you written any JSX? Skipping."
-    );
+
+  const { data, error } = getFunctionOrClassElements(jsxObj.data);
+  if(error){
+    logErrors({ data, error })
+    return null;
   }
-  mapJson(renderJson);
+
+  const argumentsArray = buildArgumentsArray(data)
+  if(argumentsArray.error){
+    logErrors(argumentsArray)
+    return null;
+  }
+  const renderJson = argumentsArray.data
+
+  // Find the 'router', 'browserrouter', or 'switch' element.
+  let router = getRoutes(renderJson)
+  if(router.error){
+    logErrors(router)
+    return null;
+  }
 
   // if the above elements exist, map through all routes.
   if (router !== undefined) {
@@ -254,4 +102,4 @@ buildSitemap.propTypes = {
   url: PropTypes.string,
 };
 
-export default buildSitemap;
+module.exports =  buildSitemap;
