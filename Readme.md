@@ -1,4 +1,35 @@
 # React Build Sitemap
+Can generate a sitemap.xml for react-router/react-router-dom in javascript or typescript files like the example above:
+
+import React, { ReactElement } from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+// ---Pages
+import HomePage from 'Pages/HomePage';
+import ProductListPage from 'Pages/ProductListPage';
+import ProductDetailPage from 'Pages/ProductDetailPage';
+import TrackerPage from 'Pages/TrackerPage';
+import Error404Page from 'Pages/Error404Page';
+// ---Components
+import NavbarCont from 'Cont/NavbarCont';
+import Footer from 'Comp/Footer';
+
+function AppContainer() : ReactElement {
+  return (
+    <BrowserRouter>
+      <NavbarCont />
+      <Switch>
+        <Route exact path="/" component={HomePage} />
+        <Route exact path="/productos" component={ProductListPage} />
+        <Route exact path="/item" component={ProductDetailPage} />
+        <Route exact path="/rastreo" component={TrackerPage} />
+        <Route exact path="*" component={Error404Page} />
+      </Switch>
+      <Footer />
+    </BrowserRouter>
+  );
+}
+
+export default AppContainer;
 
 ## The new way to build your sitemap from React Router
 
@@ -25,13 +56,13 @@ your router.
 NPM:
 
 ```
-npm install react-build-sitemap --save-dev
+npm install react-sitemap-stevedevops --save-dev
 ```
 
 Yarn:
 
 ```
-yarn add react-build-sitemap --dev
+yarn add react-sitemap-stevedevops --dev
 ```
 
 ### Usage
@@ -39,10 +70,13 @@ yarn add react-build-sitemap --dev
 In whatever file you need to import this in, do the following:
 
 ```
-import buildSitemap from 'react-build-sitemap'
+import buildSitemap from 'react-sitemap-stevedevops'
 
-buildSitemap('./path/to/component/Component.jsx', './build/path/for/sitemap', 'http://yoururl.com')
+buildSitemap('./path/to/component/Component.jsx', './build/path/for/sitemap', 'http://yoururl.com', [http://otherWeb1.com, http://otherWeb1.com])
 ```
+
 
 **NOTE:** Do not put a `/` at the end of the buildPath or the url. These will be
 handled by the library.
+
+**NOTE:** The last array of websites is optional

@@ -87,7 +87,7 @@ const buildSitemap = (fileName, buildPath, url, aditionalWebsites) => {
   // write sitemap.xml file to build path.
   fs.writeFile(`${buildPath}/sitemap.xml`, xml, (err) => {
     if (err) {
-      console.error(`Error ❌: (react-build-sitemap) ${err}`);
+      console.error(`Error ❌: (react-sitemap-stevedevops) ${err}`);
     } else {
       console.log(
         `> ✔️ Sitemap successfully generated at ${buildPath}/sitemap.xml`
