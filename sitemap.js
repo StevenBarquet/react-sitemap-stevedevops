@@ -12,4 +12,4 @@ const aditionalWebsites = [
 ]
 
 // ---Script
-buildSitemap(`${currentPath}/RoutesExample.tsx`, currentPath, siteDomain, aditionalWebsites);
+buildSitemap(`${currentPath}/RoutesExample1.tsx`, currentPath, siteDomain, aditionalWebsites);

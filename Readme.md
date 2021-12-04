@@ -1,35 +1,7 @@
 # React Build Sitemap
-Can generate a sitemap.xml for react-router/react-router-dom in javascript or typescript files like the example above:
+Can generate a sitemap.xml for react-router/react-router-dom in javascript or typescript files like the example in: https://github.com/SteveDevops-Academy/sitemap-files-examples
 
-import React, { ReactElement } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
-// ---Pages
-import HomePage from 'Pages/HomePage';
-import ProductListPage from 'Pages/ProductListPage';
-import ProductDetailPage from 'Pages/ProductDetailPage';
-import TrackerPage from 'Pages/TrackerPage';
-import Error404Page from 'Pages/Error404Page';
-// ---Components
-import NavbarCont from 'Cont/NavbarCont';
-import Footer from 'Comp/Footer';
 
-<!-- function AppContainer() : ReactElement {
-  return (
-    <BrowserRouter>
-      <NavbarCont />
-      <Switch>
-        <Route exact path="/" component={HomePage} />
-        <Route exact path="/productos" component={ProductListPage} />
-        <Route exact path="/item" component={ProductDetailPage} />
-        <Route exact path="/rastreo" component={TrackerPage} />
-        <Route exact path="*" component={Error404Page} />
-      </Switch>
-      <Footer />
-    </BrowserRouter>
-  );
-} -->
-
-export default AppContainer;
 
 ## The new way to build your sitemap from React Router
 
@@ -76,7 +48,17 @@ buildSitemap('./path/to/component/Component.jsx', './build/path/for/sitemap', 'h
 ```
 
 
-**NOTE:** Do not put a `/` at the end of the buildPath or the url. These will be
+**NOTE-1:** Do not put a `/` at the end of the buildPath or the url. These will be
 handled by the library.
 
-**NOTE:** The last array of websites is optional
+**NOTE-2:** The last array of websites is optional
+
+**NOTE-3:** Remember you can add some script as the follows in your package.json:
+{
+  ...,
+   "scripts": {
+      ...,
+      "build-sitemap": "node ./sitemap.js"
+   }
+}
+

@@ -1,6 +1,7 @@
 // ---Dependencies
 const fs = require("fs");
 const babelParser = require("@babel/parser");
+// const buildJson = require("./buildJson")
 
 /** check for file type (typescript/javascript) */
 function getFileType(fileName) {
@@ -258,7 +259,7 @@ function buildArgumentsArray(data) {
 
 /** Find the 'router', 'browserrouter', or 'switch' element*/
 function getRoutes(json) {
-  let router;
+  let router = [];
   json.forEach((item) => {
     if (item.type === "ConditionalExpression") {
       if (item.consequent.type === "JSXFragment") {
@@ -301,13 +302,17 @@ function getRoutes(json) {
         );
         getRoutes(children);
       } else {
+        // console.log('------------entra item: ', item);
+        // buildJson('./', item, 'itemRote')
         //check for router in the item name.
         if (
           item.openingElement.name.name !== undefined &&
           (item.openingElement.name.name === "Router" ||
             item.openingElement.name.name === "BrowserRouter" ||
-            item.openingElement.name.name === "Switch")
+            item.openingElement.name.name === "Switch" ||
+            item.openingElement.name.name === "Fragment")
         ) {
+          
           let routesFather = [];
           item.children.forEach( element => {
             const isJsxFather = 
@@ -317,7 +322,6 @@ function getRoutes(json) {
                 element.openingElement.name.name === "Router" ||
                 element.openingElement.name.name === "BrowserRouter" ||
                 element.openingElement.name.name === "Switch")
-
             if(isJsxFather){
               routesFather = element.children
             }
@@ -341,6 +345,7 @@ function getRoutes(json) {
       }
     }
   });
+  
   if (router.length === 0) {
     return {
       error: true,

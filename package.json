@@ -1,6 +1,6 @@
 {
   "name": "react-sitemap-stevedevops",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "simple library that generates a sitemap from your react router",
   "main": "./index.js",
   "scripts": {
